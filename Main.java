@@ -299,9 +299,9 @@ char[] readScenario(Scanner in){
 
 void main(){
     Scanner in = new Scanner(System.in);
-    char[] lvl1 = readScenario(in);
     char[] lvl2 = readScenario(in);
-    initState(lvl2, lvl1);
+    char[] lvl1 = readScenario(in);
+    initState(lvl1, lvl2);
     readPlayerMovement(in);
     printGameResult();
     readAfterTheGameFinished(in);
