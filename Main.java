@@ -6,7 +6,6 @@ import java.util.Scanner;
 
 final String WIN_MSG = "You won the game!";
 final String LOSE_MSG = "You lost the game!";
-final String QUIT_MSG = "Goodbye: ";
 final String QUIT_COM = "quit";
 final String ENEMY_Z_MSG = "zigzagger";
 final String ENEMY_L_MSG = "looper";
@@ -22,7 +21,6 @@ final int PLAYER_ROOM = 0;
 final int PLAYER_LEVEL = 1;
 final int EXIT_ROOM = 0;
 final int EXIT_LEVEL = 1;
-final int[] ENEMY_Z_STEPS = {1,2,3,4,5};
 
 int totalTreasures;
 int treasureCount;
@@ -45,7 +43,7 @@ void initState(char[] lvl1, char[] lvl2){
     lvl1EnemyInfo[ENEMY_LEVEL] = 1;
     lvl2EnemyInfo = buildEnemy(level2);
     lvl2EnemyInfo[ENEMY_LEVEL] = 2;
-    zigzaggerSteps = 0;
+    zigzaggerSteps = 1;
 }
 
 boolean didThePlayerWin(){
@@ -66,10 +64,11 @@ boolean isTheGameOver(){
 
 void quitGame(){
     if (isTheGameOver()) {
+        System.out.print("Goodbye: ");
         if (didThePlayerWin())
-            System.out.println(QUIT_MSG + WIN_MSG);
+            System.out.println(WIN_MSG);
         else
-            System.out.println(QUIT_MSG + LOSE_MSG);
+            System.out.println(LOSE_MSG);
     }
     else{
         System.out.println("The game was not over yet!");
@@ -178,14 +177,14 @@ void updateLooperPosition(int[] enemyInfo){
 }
 
 void updateZigzaggerPosition(int[] enemyInfo){
-    enemyInfo[ENEMY_ROOM] += ENEMY_Z_STEPS[zigzaggerSteps];
+    enemyInfo[ENEMY_ROOM] += zigzaggerSteps;
     if (enemyInfo[ENEMY_LEVEL] == 1 && enemyInfo[ENEMY_ROOM] > level1.length)
         enemyInfo[ENEMY_ROOM] = enemyInfo[ENEMY_ROOM] - level1.length;
     if (enemyInfo[ENEMY_LEVEL] == 2 && enemyInfo[ENEMY_ROOM] > level2.length)
         enemyInfo[ENEMY_ROOM] = enemyInfo[ENEMY_ROOM] - level2.length;
     zigzaggerSteps++;
-    if (zigzaggerSteps >= ENEMY_Z_STEPS.length)
-        zigzaggerSteps = 0;
+    if (zigzaggerSteps >= 6)
+        zigzaggerSteps = 1;
 }
 
 int[] initPlayerState(){
@@ -259,7 +258,6 @@ void readPlayerMovement(Scanner in){
             printGameStatus();
             readPlayerMovement(in);
         }
-
     }
     else {
         System.out.println("Invalid command");
