@@ -4,39 +4,24 @@
 
 import java.util.Scanner;
 
-final String GAME_OVER_MSG = "The game is over";
 final String WIN_MSG = "You won the game!";
 final String LOSE_MSG = "You lost the game!";
-final String QUIT_MID_GAME = "The game was not over yet!";
 final String QUIT_MSG = "Goodbye: ";
-final String INVALID_COM_MSG = "Invalid command";
-final String LEFT_COM = "left";
-final String RIGHT_COM = "right";
 final String QUIT_COM = "quit";
-final String PLAYER_MOV = "Player: level %d, room %d, treasures %d";
-final String ENEMY_L1_MOV = "Level 1 enemy: %s, room %d";
-final String ENEMY_L2_MOV = "Level 2 enemy: %s, room %d";
 final String ENEMY_Z_MSG = "zigzagger";
 final String ENEMY_L_MSG = "looper";
-final char ENTRY = 'P';
 final char EXIT = 'E';
 final char TREASURE = 'T';
 final char STAIRS = 'S';
-final char ENEMYZ = 'Z';
-final char ENEMYL = 'L';
 final int LOOPER = 1;
 final int ZIGZAGGER = 2;
-final int ENEMY_STATS = 3;
 final int ENEMY_TYPE = 0;
 final int ENEMY_ROOM = 1;
 final int ENEMY_LEVEL = 2;
-final int PLAYER_STATS = 2;
 final int PLAYER_ROOM = 0;
 final int PLAYER_LEVEL = 1;
-final int EXIT_STATS = 2;
 final int EXIT_ROOM = 0;
 final int EXIT_LEVEL = 1;
-final int ENEMYL_L_STEPS = 1;
 final int[] ENEMY_Z_STEPS = {1,2,3,4,5};
 
 int totalTreasures;
@@ -87,7 +72,7 @@ void quitGame(){
             System.out.println(QUIT_MSG + LOSE_MSG);
     }
     else{
-        System.out.println(QUIT_MID_GAME);
+        System.out.println("The game was not over yet!");
     }
     System.exit(0);
 }
@@ -110,17 +95,17 @@ void printGameStatus(){
         lvl2Enemy = ENEMY_L_MSG;
     else
         lvl2Enemy = ENEMY_Z_MSG;
-    System.out.printf(PLAYER_MOV,
+    System.out.printf("Player: level %d, room %d, treasures %d",
             playerInfo[PLAYER_LEVEL], playerInfo[PLAYER_ROOM], treasureCount);
     System.out.println();
-    System.out.printf(ENEMY_L1_MOV, lvl1Enemy, lvl1EnemyInfo[ENEMY_ROOM]);
+    System.out.printf("Level 1 enemy: %s, room %d", lvl1Enemy, lvl1EnemyInfo[ENEMY_ROOM]);
     System.out.println();
-    System.out.printf(ENEMY_L2_MOV, lvl2Enemy, lvl2EnemyInfo[ENEMY_ROOM]);
+    System.out.printf("Level 2 enemy: %s, room %d", lvl2Enemy, lvl2EnemyInfo[ENEMY_ROOM]);
     System.out.println();
 }
 
 void updatePlayerPosition(String direction, int steps){
-    if (direction.equals(RIGHT_COM))
+    if (direction.equals("right"))
         playerInfo[PLAYER_ROOM] += steps;
     else
         playerInfo[PLAYER_ROOM] -= steps;
@@ -185,7 +170,7 @@ void updateEnemiesPosition(){
 }
 
 void updateLooperPosition(int[] enemyInfo){
-    enemyInfo[ENEMY_ROOM] += ENEMYL_L_STEPS;
+    enemyInfo[ENEMY_ROOM] += 1;
     if (enemyInfo[ENEMY_LEVEL] == 1 && enemyInfo[ENEMY_ROOM] > level1.length)
         enemyInfo[ENEMY_ROOM] = 1;
     if (enemyInfo[ENEMY_LEVEL] == 2 && enemyInfo[ENEMY_ROOM] > level2.length)
@@ -204,9 +189,9 @@ void updateZigzaggerPosition(int[] enemyInfo){
 }
 
 int[] initPlayerState(){
-    int[] initialPlayerStatus = new int[PLAYER_STATS];
+    int[] initialPlayerStatus = new int[2];
     for (int i = 0; i < level1.length; i++){
-        if (level1[i] == ENTRY)
+        if (level1[i] == 'P')
             initialPlayerStatus[PLAYER_ROOM] = i + 1;
     }
     initialPlayerStatus[PLAYER_LEVEL] = 1;
@@ -214,12 +199,12 @@ int[] initPlayerState(){
 }
 
 int[] buildEnemy(char[] lvl){
-    int[] enemyInfo = new int[ENEMY_STATS];
+    int[] enemyInfo = new int[3];
     for (int i = 0; i < lvl.length; i++) {
-        if (lvl[i] == ENEMYL) {
+        if (lvl[i] == 'L') {
             enemyInfo[ENEMY_TYPE] = LOOPER;
             enemyInfo[ENEMY_ROOM] = i + 1;
-        } else if (lvl[i] == ENEMYZ) {
+        } else if (lvl[i] == 'Z') {
             enemyInfo[ENEMY_TYPE] = ZIGZAGGER;
             enemyInfo[ENEMY_ROOM] = i + 1;
         }
@@ -228,7 +213,7 @@ int[] buildEnemy(char[] lvl){
 }
 
 int[] locateExit (){
-    int[] exit = new int[EXIT_STATS];
+    int[] exit = new int[2];
     for (int i = 0; i < level1.length; i++){
         if (level1[i] == EXIT){
             exit[EXIT_ROOM] = i + 1;
@@ -237,8 +222,8 @@ int[] locateExit (){
     }
     for (int i = 0; i < level2.length; i++){
         if (level2[i] == EXIT) {
-        exit[EXIT_ROOM] = i + 1;
-        exit[EXIT_LEVEL] = 2;
+            exit[EXIT_ROOM] = i + 1;
+            exit[EXIT_LEVEL] = 2;
         }
     }
     return exit;
@@ -258,7 +243,7 @@ int countTreasures (){
 }
 
 boolean isTheCommandValid(String com){
-    return com.equals(RIGHT_COM) || com.equals(LEFT_COM);
+    return com.equals("right") || com.equals("left");
 }
 
 void readPlayerMovement(Scanner in){
@@ -277,7 +262,7 @@ void readPlayerMovement(Scanner in){
 
     }
     else {
-        System.out.println(INVALID_COM_MSG);
+        System.out.println("Invalid command");
         readPlayerMovement(in);
     }
 }
@@ -287,7 +272,7 @@ void readAfterTheGameFinished(Scanner in){
     if (command.equals(QUIT_COM))
         quitGame();
     else {
-        System.out.println(GAME_OVER_MSG);
+        System.out.println("The game is over");
         readAfterTheGameFinished(in);
     }
 }
