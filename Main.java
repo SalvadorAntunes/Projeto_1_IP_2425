@@ -10,8 +10,6 @@ final String LOSE_MSG = "You lost the game!";
 final String QUIT_MID_GAME = "The game was not over yet!";
 final String QUIT_MSG = "Goodbye: ";
 final String INVALID_COM_MSG = "Invalid command";
-final String LEFT_COM = "left";
-final String RIGHT_COM = "right";
 final String QUIT_COM = "quit";
 final String PLAYER_MOV = "Player: level %d, room %d, treasures %d";
 final String ENEMY_L1_MOV = "Level 1 enemy: %s, room %d";
@@ -37,7 +35,6 @@ final int EXIT_STATS = 2;
 final int EXIT_ROOM = 0;
 final int EXIT_LEVEL = 1;
 final int ENEMYL_L_STEPS = 1;
-final int[] ENEMY_Z_STEPS = {1,2,3,4,5};
 
 int totalTreasures;
 int treasureCount;
@@ -61,8 +58,8 @@ void initState(char[] layoutDungeonLevel1, char[] layoutDungeonLevel2){
     lvl1EnemyInfo[ENEMY_LEVEL] = 1;
     lvl2EnemyInfo = buildEnemy(level2);
     lvl2EnemyInfo[ENEMY_LEVEL] = 2;
-    zigzaggerStepsL1 = 0;
-    zigzaggerStepsL2 = 0;
+    zigzaggerStepsL1 = 1;
+    zigzaggerStepsL2 = 1;
 }
 
 boolean didThePlayerWin(){
@@ -126,7 +123,7 @@ void printGameStatus(){
 }
 
 void updatePlayerPosition(String direction, int steps){
-    if (direction.equals(RIGHT_COM))
+    if (direction.equals("right"))
         playerInfo[PLAYER_ROOM] += steps;
     else
         playerInfo[PLAYER_ROOM] -= steps;
@@ -205,20 +202,20 @@ void updateLooperPosition(int[] enemyInfo){
 
 void updateZigzaggerPosition(int[] enemyInfo){
     if (enemyInfo[ENEMY_LEVEL] == 1) {
-        enemyInfo[ENEMY_ROOM] += ENEMY_Z_STEPS[zigzaggerStepsL1];
+        enemyInfo[ENEMY_ROOM] += zigzaggerStepsL1;
         while (enemyInfo[ENEMY_ROOM] > level1.length)
             enemyInfo[ENEMY_ROOM] = enemyInfo[ENEMY_ROOM] - level1.length;
         zigzaggerStepsL1++;
-        if (zigzaggerStepsL1 >= ENEMY_Z_STEPS.length)
-            zigzaggerStepsL1 = 0;
+        if (zigzaggerStepsL1 == 6)
+            zigzaggerStepsL1 = 1;
     }
     if (enemyInfo[ENEMY_LEVEL] == 2) {
-        enemyInfo[ENEMY_ROOM] += ENEMY_Z_STEPS[zigzaggerStepsL2];
+        enemyInfo[ENEMY_ROOM] += zigzaggerStepsL2;
         while (enemyInfo[ENEMY_ROOM] > level2.length)
             enemyInfo[ENEMY_ROOM] = enemyInfo[ENEMY_ROOM] - level2.length;
         zigzaggerStepsL2++;
-        if (zigzaggerStepsL2 >= ENEMY_Z_STEPS.length)
-            zigzaggerStepsL2 = 0;
+        if (zigzaggerStepsL2 == 6)
+            zigzaggerStepsL2 = 1;
     }
 }
 
@@ -283,37 +280,48 @@ int countTreasures (){
     return treasures;
 }
 
-boolean isTheCommandValid(String com){
-    return (com.equals(RIGHT_COM) || com.equals(LEFT_COM));
+boolean isTheCommandValid(String command){
+    String[] commandParts = command.split(" ");
+    if (commandParts.length!=2)
+        return false;
+    String direction = commandParts[0];
+    if (!direction.equals("right")&&!direction.equals("left"))
+        return false;
+    String stepsString = commandParts[1];
+    for(char c : stepsString.toCharArray())
+        if (!Character.isDigit(c))
+            return false;
+    return true;
 }
 
 void readPlayerMovement(Scanner in){
-    String command = in.next();
+    String command = in.nextLine();
     if (command.equals(QUIT_COM))
         quitGame();
-    int steps = in.nextInt();
-    in.nextLine();
-    if (isTheCommandValid(command)){
-        updatePlayerPosition(command, steps);
+    else {
+        if (isTheCommandValid(command)){
+        String[] commandParts = command.split(" ");
+        String direction = commandParts[0];
+        int steps = Integer.parseInt(commandParts[1]);
+        updatePlayerPosition(direction, steps);
         updateEnemiesPosition();
-        if (!isTheGameOver()){
-            printGameStatus();
+            if (!isTheGameOver()){
+                printGameStatus();
+                readPlayerMovement(in);
+            }
+        }
+        else {
+            System.out.println(INVALID_COM_MSG);
             readPlayerMovement(in);
         }
-    }
-    else {
-        System.out.println(INVALID_COM_MSG);
-        readPlayerMovement(in);
     }
 }
 
 void readAfterTheGameFinished(Scanner in){
-    String command = in.next();
+    String command = in.nextLine();
     if (command.equals(QUIT_COM))
         quitGame();
     else {
-        int steps = in.nextInt();
-        in.nextLine();
         if (isTheCommandValid(command))
             System.out.println(GAME_OVER_MSG);
         else
