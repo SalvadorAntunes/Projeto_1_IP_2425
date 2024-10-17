@@ -25,16 +25,11 @@ final char ENEMY_L = 'L';
 final int LOOPER = 1;
 final int ZIGZAGGER = 2;
 final int ENEMY_STATS = 3;
-final int ENEMY_TYPE = 0;
-final int ENEMY_ROOM = 1;
-final int ENEMY_LEVEL = 2;
 final int PLAYER_STATS = 2;
-final int PLAYER_ROOM = 0;
-final int PLAYER_LEVEL = 1;
 final int EXIT_STATS = 2;
-final int EXIT_ROOM = 0;
-final int EXIT_LEVEL = 1;
-final int ENEMYL_L_STEPS = 1;
+final int ROOM = 0;
+final int LEVEL = 1;
+final int ENEMY_TYPE = 2;
 
 int totalTreasures;
 int treasureCount;
@@ -55,25 +50,25 @@ void initState(char[] layoutDungeonLevel1, char[] layoutDungeonLevel2){
     totalTreasures = countTreasures();
     exitInfo = locateExit();
     lvl1EnemyInfo = buildEnemy(level1);
-    lvl1EnemyInfo[ENEMY_LEVEL] = 1;
+    lvl1EnemyInfo[LEVEL] = 1;
     lvl2EnemyInfo = buildEnemy(level2);
-    lvl2EnemyInfo[ENEMY_LEVEL] = 2;
+    lvl2EnemyInfo[LEVEL] = 2;
     zigzaggerStepsL1 = 1;
     zigzaggerStepsL2 = 1;
 }
 
 boolean didThePlayerWin(){
     return treasureCount == totalTreasures &&
-            playerInfo[PLAYER_ROOM] == exitInfo[EXIT_ROOM] &&
-            playerInfo[PLAYER_LEVEL] == exitInfo[EXIT_LEVEL];
+            playerInfo[ROOM] == exitInfo[ROOM] &&
+            playerInfo[LEVEL] == exitInfo[LEVEL];
 }
 
 boolean didThePlayerLose(){
-    return (playerInfo[PLAYER_LEVEL] == 1
-            && lvl1EnemyInfo[ENEMY_ROOM] == playerInfo[PLAYER_ROOM])
+    return (playerInfo[LEVEL] == 1
+            && lvl1EnemyInfo[ROOM] == playerInfo[ROOM])
             ||
-            (playerInfo[PLAYER_LEVEL] == 2
-                    && lvl2EnemyInfo[ENEMY_ROOM] == playerInfo[PLAYER_ROOM]);
+            (playerInfo[LEVEL] == 2
+                    && lvl2EnemyInfo[ROOM] == playerInfo[ROOM]);
 }
 
 boolean isTheGameOver(){
@@ -114,25 +109,25 @@ void printGameStatus(){
     else
         lvl2Enemy = ENEMY_Z_MSG;
     System.out.printf(PLAYER_MOV,
-            playerInfo[PLAYER_LEVEL], playerInfo[PLAYER_ROOM], treasureCount);
+            playerInfo[LEVEL], playerInfo[ROOM], treasureCount);
     System.out.println();
-    System.out.printf(ENEMY_L1_MOV, lvl1Enemy, lvl1EnemyInfo[ENEMY_ROOM]);
+    System.out.printf(ENEMY_L1_MOV, lvl1Enemy, lvl1EnemyInfo[ROOM]);
     System.out.println();
-    System.out.printf(ENEMY_L2_MOV, lvl2Enemy, lvl2EnemyInfo[ENEMY_ROOM]);
+    System.out.printf(ENEMY_L2_MOV, lvl2Enemy, lvl2EnemyInfo[ROOM]);
     System.out.println();
 }
 
 void updatePlayerPosition(String direction, int steps){
     if (direction.equals("right"))
-        playerInfo[PLAYER_ROOM] += steps;
+        playerInfo[ROOM] += steps;
     else
-        playerInfo[PLAYER_ROOM] -= steps;
-    if (playerInfo[PLAYER_ROOM] < 1)
-        playerInfo[PLAYER_ROOM] = 1;
-    else if (playerInfo[PLAYER_LEVEL] == 1 && playerInfo[PLAYER_ROOM] > level1.length)
-        playerInfo[PLAYER_ROOM] = level1.length;
-    else if (playerInfo[PLAYER_LEVEL] == 2 && playerInfo[PLAYER_ROOM] > level2.length)
-        playerInfo[PLAYER_ROOM] = level2.length;
+        playerInfo[ROOM] -= steps;
+    if (playerInfo[ROOM] < 1)
+        playerInfo[ROOM] = 1;
+    else if (playerInfo[LEVEL] == 1 && playerInfo[ROOM] > level1.length)
+        playerInfo[ROOM] = level1.length;
+    else if (playerInfo[LEVEL] == 2 && playerInfo[ROOM] > level2.length)
+        playerInfo[ROOM] = level2.length;
     addTreasure();
     usingTheStairs();
 }
@@ -147,37 +142,36 @@ void usingTheStairs(){
         if (level2[i] == STAIRS)
             stairsLevel2 = i + 1;
     if (canThePlayerGoUpstairs(stairsLevel1)){
-        playerInfo[PLAYER_LEVEL] = 2;
-        playerInfo[PLAYER_ROOM] = stairsLevel2;
+        playerInfo[LEVEL] = 2;
+        playerInfo[ROOM] = stairsLevel2;
     } else if (canThePlayerGoDownStairs(stairsLevel2)) {
-        playerInfo[PLAYER_LEVEL] = 1;
-        playerInfo[PLAYER_ROOM] = stairsLevel1;
+        playerInfo[LEVEL] = 1;
+        playerInfo[ROOM] = stairsLevel1;
     }
 }
 
 boolean canThePlayerGoUpstairs(int stairs){
-    return playerInfo[PLAYER_LEVEL] == 1 && playerInfo[PLAYER_ROOM] == stairs;
+    return playerInfo[LEVEL] == 1 && playerInfo[ROOM] == stairs;
 }
 
 boolean canThePlayerGoDownStairs(int stairs){
-    return playerInfo[PLAYER_LEVEL] == 2 && playerInfo[PLAYER_ROOM] == stairs;
+    return playerInfo[LEVEL] == 2 && playerInfo[ROOM] == stairs;
 }
 
 void addTreasure(){
-    if (playerInfo[PLAYER_LEVEL] == 1) {
+    if (playerInfo[LEVEL] == 1) {
         for (int i = 0; i < level1.length; i++)
-            if (level1[i] == TREASURE && i == playerInfo[PLAYER_ROOM] - 1){
+            if (level1[i] == TREASURE && i == playerInfo[ROOM] - 1){
                 treasureCount++;
                 level1[i] = '.';
             }
     }
-    else if (playerInfo[PLAYER_LEVEL] == 2) {
+    else if (playerInfo[LEVEL] == 2) {
         for (int i = 0; i < level2.length; i++)
-            if (level2[i] == TREASURE && i + 1 == playerInfo[PLAYER_ROOM]){
+            if (level2[i] == TREASURE && i + 1 == playerInfo[ROOM]){
                 treasureCount++;
                 level2[i] = '.';
             }
-
     }
 }
 
@@ -193,26 +187,26 @@ void updateEnemiesPosition(){
 }
 
 void updateLooperPosition(int[] enemyInfo){
-    enemyInfo[ENEMY_ROOM] += ENEMYL_L_STEPS;
-    if (enemyInfo[ENEMY_LEVEL] == 1 && enemyInfo[ENEMY_ROOM] > level1.length)
-        enemyInfo[ENEMY_ROOM] = 1;
-    if (enemyInfo[ENEMY_LEVEL] == 2 && enemyInfo[ENEMY_ROOM] > level2.length)
-        enemyInfo[ENEMY_ROOM] = 1;
+    enemyInfo[ROOM] += 1;
+    if (enemyInfo[LEVEL] == 1 && enemyInfo[ROOM] > level1.length)
+        enemyInfo[ROOM] = 1;
+    if (enemyInfo[LEVEL] == 2 && enemyInfo[ROOM] > level2.length)
+        enemyInfo[ROOM] = 1;
 }
 
 void updateZigzaggerPosition(int[] enemyInfo){
-    if (enemyInfo[ENEMY_LEVEL] == 1) {
-        enemyInfo[ENEMY_ROOM] += zigzaggerStepsL1;
-        while (enemyInfo[ENEMY_ROOM] > level1.length)
-            enemyInfo[ENEMY_ROOM] = enemyInfo[ENEMY_ROOM] - level1.length;
+    if (enemyInfo[LEVEL] == 1) {
+        enemyInfo[ROOM] += zigzaggerStepsL1;
+        while (enemyInfo[ROOM] > level1.length)
+            enemyInfo[ROOM] = enemyInfo[ROOM] - level1.length;
         zigzaggerStepsL1++;
         if (zigzaggerStepsL1 == 6)
             zigzaggerStepsL1 = 1;
     }
-    if (enemyInfo[ENEMY_LEVEL] == 2) {
-        enemyInfo[ENEMY_ROOM] += zigzaggerStepsL2;
-        while (enemyInfo[ENEMY_ROOM] > level2.length)
-            enemyInfo[ENEMY_ROOM] = enemyInfo[ENEMY_ROOM] - level2.length;
+    if (enemyInfo[LEVEL] == 2) {
+        enemyInfo[ROOM] += zigzaggerStepsL2;
+        while (enemyInfo[ROOM] > level2.length)
+            enemyInfo[ROOM] = enemyInfo[ROOM] - level2.length;
         zigzaggerStepsL2++;
         if (zigzaggerStepsL2 == 6)
             zigzaggerStepsL2 = 1;
@@ -223,14 +217,14 @@ int[] initPlayerState(){
     int[] initialPlayerStatus = new int[PLAYER_STATS];
     for (int i = 0; i < level1.length; i++){
         if (level1[i] == ENTRY){
-            initialPlayerStatus[PLAYER_ROOM] = i + 1;
-            initialPlayerStatus[PLAYER_LEVEL] = 1;
+            initialPlayerStatus[ROOM] = i + 1;
+            initialPlayerStatus[LEVEL] = 1;
         }
     }
     for (int i = 0; i < level2.length; i++){
         if (level2[i] == ENTRY){
-            initialPlayerStatus[PLAYER_ROOM] = i + 1;
-            initialPlayerStatus[PLAYER_LEVEL] = 2;
+            initialPlayerStatus[ROOM] = i + 1;
+            initialPlayerStatus[LEVEL] = 2;
         }
     }
     return initialPlayerStatus;
@@ -241,10 +235,10 @@ int[] buildEnemy(char[] lvl){
     for (int i = 0; i < lvl.length; i++) {
         if (lvl[i] == ENEMY_L) {
             enemyInfo[ENEMY_TYPE] = LOOPER;
-            enemyInfo[ENEMY_ROOM] = i + 1;
+            enemyInfo[ROOM] = i + 1;
         } else if (lvl[i] == ENEMY_Z) {
             enemyInfo[ENEMY_TYPE] = ZIGZAGGER;
-            enemyInfo[ENEMY_ROOM] = i + 1;
+            enemyInfo[ROOM] = i + 1;
         }
     }
     return enemyInfo;
@@ -254,14 +248,14 @@ int[] locateExit (){
     int[] exit = new int[EXIT_STATS];
     for (int i = 0; i < level1.length; i++){
         if (level1[i] == EXIT){
-            exit[EXIT_ROOM] = i + 1;
-            exit[EXIT_LEVEL] = 1;
+            exit[ROOM] = i + 1;
+            exit[LEVEL] = 1;
         }
     }
     for (int i = 0; i < level2.length; i++){
         if (level2[i] == EXIT) {
-            exit[EXIT_ROOM] = i + 1;
-            exit[EXIT_LEVEL] = 2;
+            exit[ROOM] = i + 1;
+            exit[LEVEL] = 2;
         }
     }
     return exit;
