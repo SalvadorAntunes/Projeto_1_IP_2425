@@ -49,9 +49,9 @@ int[] lvl2EnemyInfo;
 int[] exitInfo;
 int zigzaggerSteps;
 
-void initState(char[] lvl1, char[] lvl2){
-    level1 = lvl1;
-    level2 = lvl2;
+void initState(char[] layoutDungeonLevel1, char[] layoutDungeonLevel2){
+    level1 = layoutDungeonLevel1;
+    level2 = layoutDungeonLevel2;
     playerInfo = initPlayerState();
     treasureCount = 0;
     totalTreasures = countTreasures();
@@ -124,8 +124,8 @@ void updatePlayerPosition(String direction, int steps){
         playerInfo[PLAYER_ROOM] += steps;
     else
         playerInfo[PLAYER_ROOM] -= steps;
-    if (playerInfo[PLAYER_ROOM] < 0)
-        playerInfo[PLAYER_ROOM] = 0;
+    if (playerInfo[PLAYER_ROOM] < 1)
+        playerInfo[PLAYER_ROOM] = 1;
     else if (playerInfo[PLAYER_LEVEL] == 1 && playerInfo[PLAYER_ROOM] > level1.length)
         playerInfo[PLAYER_ROOM] = level1.length;
     else if (playerInfo[PLAYER_LEVEL] == 2 && playerInfo[PLAYER_ROOM] > level2.length)
@@ -163,13 +163,18 @@ boolean canThePlayerGoDownStairs(int stairs){
 void addTreasure(){
     if (playerInfo[PLAYER_LEVEL] == 1) {
         for (int i = 0; i < level1.length; i++)
-            if (level1[i] == TREASURE && i == playerInfo[PLAYER_ROOM] - 1)
+            if (level1[i] == TREASURE && i == playerInfo[PLAYER_ROOM] - 1){
                 treasureCount++;
+                level1[i] = '.';
+            }
     }
     else if (playerInfo[PLAYER_LEVEL] == 2) {
         for (int i = 0; i < level2.length; i++)
-            if (level2[i] == TREASURE && i + 1 == playerInfo[PLAYER_ROOM])
+            if (level2[i] == TREASURE && i + 1 == playerInfo[PLAYER_ROOM]){
                 treasureCount++;
+                level2[i] = '.';
+            }
+
     }
 }
 
@@ -293,15 +298,15 @@ void readAfterTheGameFinished(Scanner in){
 }
 
 char[] readScenario(Scanner in){
-    String lvl = in.nextLine();
-    return lvl.toCharArray();
+    String layoutDungeonLevel = in.nextLine();
+    return layoutDungeonLevel.toCharArray();
 }
 
 void main(){
     Scanner in = new Scanner(System.in);
-    char[] lvl2 = readScenario(in);
-    char[] lvl1 = readScenario(in);
-    initState(lvl1, lvl2);
+    char[] layoutDungeonLevel2 = readScenario(in);
+    char[] layoutDungeonLevel1 = readScenario(in);
+    initState(layoutDungeonLevel1, layoutDungeonLevel2);
     readPlayerMovement(in);
     printGameResult();
     readAfterTheGameFinished(in);
