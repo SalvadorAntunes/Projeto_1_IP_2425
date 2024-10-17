@@ -47,7 +47,8 @@ int[] playerInfo;
 int[] lvl1EnemyInfo;
 int[] lvl2EnemyInfo;
 int[] exitInfo;
-int zigzaggerSteps;
+int zigzaggerStepsL1;
+int zigzaggerStepsL2;
 
 void initState(char[] layoutDungeonLevel1, char[] layoutDungeonLevel2){
     level1 = layoutDungeonLevel1;
@@ -60,7 +61,8 @@ void initState(char[] layoutDungeonLevel1, char[] layoutDungeonLevel2){
     lvl1EnemyInfo[ENEMY_LEVEL] = 1;
     lvl2EnemyInfo = buildEnemy(level2);
     lvl2EnemyInfo[ENEMY_LEVEL] = 2;
-    zigzaggerSteps = 0;
+    zigzaggerStepsL1 = 0;
+    zigzaggerStepsL2 = 0;
 }
 
 boolean didThePlayerWin(){
@@ -69,22 +71,26 @@ boolean didThePlayerWin(){
             playerInfo[PLAYER_LEVEL] == exitInfo[EXIT_LEVEL];
 }
 
-boolean isTheGameOver(){
-    return didThePlayerWin()
-            ||
-            (playerInfo[PLAYER_LEVEL] == 1
-                    && lvl1EnemyInfo[ENEMY_ROOM] == playerInfo[PLAYER_ROOM])
+boolean didThePlayerLose(){
+    return (playerInfo[PLAYER_LEVEL] == 1
+            && lvl1EnemyInfo[ENEMY_ROOM] == playerInfo[PLAYER_ROOM])
             ||
             (playerInfo[PLAYER_LEVEL] == 2
                     && lvl2EnemyInfo[ENEMY_ROOM] == playerInfo[PLAYER_ROOM]);
 }
 
+boolean isTheGameOver(){
+    return didThePlayerWin()
+            ||
+            didThePlayerLose();
+}
+
 void quitGame(){
     if (isTheGameOver()) {
-        if (didThePlayerWin())
-            System.out.println(QUIT_MSG + WIN_MSG);
-        else
+        if (didThePlayerLose())
             System.out.println(QUIT_MSG + LOSE_MSG);
+        else if (didThePlayerWin())
+            System.out.println(QUIT_MSG + WIN_MSG);
     }
     else{
         System.out.println(QUIT_MID_GAME);
@@ -93,10 +99,10 @@ void quitGame(){
 }
 
 void printGameResult(){
-    if (didThePlayerWin())
-        System.out.println(WIN_MSG);
-    else
+    if (didThePlayerLose())
         System.out.println(LOSE_MSG);
+    else if (didThePlayerWin())
+        System.out.println(WIN_MSG);
 }
 
 void printGameStatus(){
@@ -198,23 +204,38 @@ void updateLooperPosition(int[] enemyInfo){
 }
 
 void updateZigzaggerPosition(int[] enemyInfo){
-    enemyInfo[ENEMY_ROOM] += ENEMY_Z_STEPS[zigzaggerSteps];
-    if (enemyInfo[ENEMY_LEVEL] == 1 && enemyInfo[ENEMY_ROOM] > level1.length)
-        enemyInfo[ENEMY_ROOM] = enemyInfo[ENEMY_ROOM] - level1.length;
-    if (enemyInfo[ENEMY_LEVEL] == 2 && enemyInfo[ENEMY_ROOM] > level2.length)
-        enemyInfo[ENEMY_ROOM] = enemyInfo[ENEMY_ROOM] - level2.length;
-    zigzaggerSteps++;
-    if (zigzaggerSteps >= ENEMY_Z_STEPS.length)
-        zigzaggerSteps = 0;
+    if (enemyInfo[ENEMY_LEVEL] == 1) {
+        enemyInfo[ENEMY_ROOM] += ENEMY_Z_STEPS[zigzaggerStepsL1];
+        while (enemyInfo[ENEMY_ROOM] > level1.length)
+            enemyInfo[ENEMY_ROOM] = enemyInfo[ENEMY_ROOM] - level1.length;
+        zigzaggerStepsL1++;
+        if (zigzaggerStepsL1 >= ENEMY_Z_STEPS.length)
+            zigzaggerStepsL1 = 0;
+    }
+    if (enemyInfo[ENEMY_LEVEL] == 2) {
+        enemyInfo[ENEMY_ROOM] += ENEMY_Z_STEPS[zigzaggerStepsL2];
+        while (enemyInfo[ENEMY_ROOM] > level2.length)
+            enemyInfo[ENEMY_ROOM] = enemyInfo[ENEMY_ROOM] - level2.length;
+        zigzaggerStepsL2++;
+        if (zigzaggerStepsL2 >= ENEMY_Z_STEPS.length)
+            zigzaggerStepsL2 = 0;
+    }
 }
 
 int[] initPlayerState(){
     int[] initialPlayerStatus = new int[PLAYER_STATS];
     for (int i = 0; i < level1.length; i++){
-        if (level1[i] == ENTRY)
+        if (level1[i] == ENTRY){
             initialPlayerStatus[PLAYER_ROOM] = i + 1;
+            initialPlayerStatus[PLAYER_LEVEL] = 1;
+        }
     }
-    initialPlayerStatus[PLAYER_LEVEL] = 1;
+    for (int i = 0; i < level2.length; i++){
+        if (level2[i] == ENTRY){
+            initialPlayerStatus[PLAYER_ROOM] = i + 1;
+            initialPlayerStatus[PLAYER_LEVEL] = 2;
+        }
+    }
     return initialPlayerStatus;
 }
 
@@ -263,7 +284,7 @@ int countTreasures (){
 }
 
 boolean isTheCommandValid(String com){
-    return com.equals(RIGHT_COM) || com.equals(LEFT_COM);
+    return (com.equals(RIGHT_COM) || com.equals(LEFT_COM));
 }
 
 void readPlayerMovement(Scanner in){
@@ -279,7 +300,6 @@ void readPlayerMovement(Scanner in){
             printGameStatus();
             readPlayerMovement(in);
         }
-
     }
     else {
         System.out.println(INVALID_COM_MSG);
@@ -288,11 +308,16 @@ void readPlayerMovement(Scanner in){
 }
 
 void readAfterTheGameFinished(Scanner in){
-    String command = in.nextLine();
+    String command = in.next();
     if (command.equals(QUIT_COM))
         quitGame();
     else {
-        System.out.println(GAME_OVER_MSG);
+        int steps = in.nextInt();
+        in.nextLine();
+        if (isTheCommandValid(command))
+            System.out.println(GAME_OVER_MSG);
+        else
+            System.out.println(INVALID_COM_MSG);
         readAfterTheGameFinished(in);
     }
 }
