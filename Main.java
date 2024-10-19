@@ -215,7 +215,7 @@ void updateEnemiesPosition(){
     if (lvl1EnemyInfo[ENEMY_TYPE] == LOOPER)
         updateLooperPosition(lvl1EnemyInfo);
     else
-        updateZigzaggerPosition(lvl1EnemyInfo,);
+        updateZigzaggerPosition(lvl1EnemyInfo);
     if (lvl2EnemyInfo[ENEMY_TYPE] == LOOPER)
         updateLooperPosition(lvl2EnemyInfo);
     else
@@ -245,7 +245,7 @@ void updateZigzaggerPosition(int[] enemyInfo){
 
         //If enemy moves beyond the last room, he goes to the first room
         while (enemyInfo[ROOM] > level1.length)
-            enemyInfo[ROOM] = enemyInfo[ROOM] - level1.length
+            enemyInfo[ROOM] = enemyInfo[ROOM] - level1.length;
         zigzaggerStepsL1++; //Increases step size for the next movement
         if (zigzaggerStepsL1 == 6)
             zigzaggerStepsL1 = 1; //Resets steps after reaching 5
