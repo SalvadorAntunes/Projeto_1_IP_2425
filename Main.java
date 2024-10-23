@@ -39,6 +39,7 @@ final int ENEMY_TYPE = 2;
 final int LOOPER = 1;
 final int ZIGZAGGER = 2;
 
+
 //Global variables to control the game status
 int totalTreasures;
 int treasureCount;
@@ -50,6 +51,7 @@ int[] lvl2EnemyInfo;
 int[] exitInfo;
 int zigzaggerStepsL1;
 int zigzaggerStepsL2;
+
 
 //Initializes the game state by setting the dungeon layout,
 //and the player's initial position.
@@ -101,10 +103,8 @@ void quitGame(){
         else if (didThePlayerWin())
             System.out.println(QUIT_MSG + WIN_MSG);
     }
-    else{
+    else
         System.out.println(QUIT_MID_GAME);
-    }
-    System.exit(0);
 }
 
 //Once the game is over, prints the game's result.
@@ -122,11 +122,11 @@ void printGameResult(){
 void printGameStatus(){
     String lvl1Enemy;
     String lvl2Enemy;
-    if (lvl1EnemyInfo[ENEMY_TYPE] == 1)
+    if (lvl1EnemyInfo[ENEMY_TYPE] == LOOPER)
         lvl1Enemy = ENEMY_L_MSG;
     else
         lvl1Enemy = ENEMY_Z_MSG;
-    if (lvl2EnemyInfo[ENEMY_TYPE] == 1)
+    if (lvl2EnemyInfo[ENEMY_TYPE] == LOOPER)
         lvl2Enemy = ENEMY_L_MSG;
     else
         lvl2Enemy = ENEMY_Z_MSG;
@@ -345,43 +345,50 @@ boolean isTheCommandValid(String command){
 }
 
 //Reads the input and separated the direction the amount of steps.
-//@param in: Scanner.
-void readPlayerMovement(Scanner in){
-    String command = in.nextLine();
-    if (command.equals(QUIT_COM))
-        quitGame();
-    else {
-        if (isTheCommandValid(command)){
+//It also processes the player's movements and updates the enemies' position.
+//@param command: input
+void readPlayerMovement(String command){
+    if (isTheCommandValid(command)){
         String[] commandParts = command.split(" ");
         String direction = commandParts[0];
         int steps = Integer.parseInt(commandParts[1]);
         updatePlayerPosition(direction, steps);
         updateEnemiesPosition();
-            if (!isTheGameOver()){
-                printGameStatus();
-                readPlayerMovement(in); //Recursive call to continue reading movements
-            }
+        if (!isTheGameOver()){
+            printGameStatus();
         }
-        else {
-            System.out.println(INVALID_COM_MSG); //Invalid command message
-            readPlayerMovement(in); //Recursive call to retry command input
-        }
+    }
+    else {
+        System.out.println(INVALID_COM_MSG); //Invalid command message
     }
 }
 
 //Reads every input after the finished.
 //Ensures the game only allows quitting.
+//@param command: input.
+void readAfterTheGameFinished(String command){
+    if (isTheCommandValid(command))
+        System.out.println(GAME_OVER_MSG); //Game over message for valid commands
+    else
+        System.out.println(INVALID_COM_MSG); //Invalid command message
+
+}
+
+//Reads the input and separated the direction the amount of steps.
 //@param in: Scanner.
-void readAfterTheGameFinished(Scanner in){
+void readInput(Scanner in){
     String command = in.nextLine();
     if (command.equals(QUIT_COM))
         quitGame();
-    else {
-        if (isTheCommandValid(command))
-            System.out.println(GAME_OVER_MSG); //Game over message for valid commands
-        else
-            System.out.println(INVALID_COM_MSG); //Invalid command message
-        readAfterTheGameFinished(in); //Recursive call to continue reading commands
+    else if (!isTheGameOver()){
+        readPlayerMovement(command); //Processes the players' movements
+        readInput(in); //Recursive call to continue reading movements
+        if (isTheGameOver())
+            printGameResult(); //Prints the final game result
+    }
+    else if (isTheGameOver()){
+        readAfterTheGameFinished(command); //Reads inputs once the game is finished
+        readInput(in); //Recursive call to continue reading commands
     }
 }
 
@@ -405,13 +412,7 @@ void main(){
     initState(layoutDungeonLevel1, layoutDungeonLevel2);
 
     //Starts reading and processing player movements
-    readPlayerMovement(in);
-
-    //Prints the final game result
-    printGameResult();
-
-    //Continues reading input after the game is finished
-    readAfterTheGameFinished(in);
+    readInput(in);
 
     in.close(); //Closes the scanner
 }
