@@ -380,7 +380,7 @@ void readInput(Scanner in) {
     }
     else {
         System.out.println(INVALID_COM_MSG);
-        readInput(in);
+        readInput(in); //Recursive call to continue reading commands
     }
 }
 
