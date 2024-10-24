@@ -53,8 +53,7 @@ int zigzaggerStepsL1;
 int zigzaggerStepsL2;
 
 
-//Initializes the game state by setting the dungeon layout,
-//and the player's initial position.
+//Initializes the game state by setting the dungeon layout, and the player's initial position.
 void initState(char[] layoutDungeonLevel1, char[] layoutDungeonLevel2){
     level1 = layoutDungeonLevel1;
     level2 = layoutDungeonLevel2;
@@ -70,16 +69,16 @@ void initState(char[] layoutDungeonLevel1, char[] layoutDungeonLevel2){
     zigzaggerStepsL2 = 1;
 }
 
-//Checks if the player has won the game by collecting all treasures
-//and reaching the exit.
+//Checks if the player has won the game by collecting all treasures and reaching the exit.
+//@return if the player won.
 boolean didThePlayerWin(){
     return treasureCount == totalTreasures &&
             playerInfo[ROOM] == exitInfo[ROOM] &&
             playerInfo[LEVEL] == exitInfo[LEVEL];
 }
 
-//Check if the player lost the game by going to
-//the same room as the enemy in his level.
+//Check if the player lost the game by going to the same room as the enemy in his level.
+//@return if the player lost.
 boolean didThePlayerLose(){
     return (playerInfo[LEVEL] == 1
             && lvl1EnemyInfo[ROOM] == playerInfo[ROOM])
@@ -89,61 +88,18 @@ boolean didThePlayerLose(){
 }
 
 //Checks if the game is already over either by winning or losing.
+//@return if the player is already over.
 boolean isTheGameOver(){
     return didThePlayerWin()
             ||
             didThePlayerLose();
 }
 
-//Handles the quit command and prints the final game result.
-void quitGame(){
-    if (isTheGameOver()) {
-        if (didThePlayerLose())
-            System.out.println(QUIT_MSG + LOSE_MSG);
-        else if (didThePlayerWin())
-            System.out.println(QUIT_MSG + WIN_MSG);
-    }
-    else
-        System.out.println(QUIT_MID_GAME);
-}
-
-//Once the game is over, prints the game's result.
-void printGameResult(){
-    if (didThePlayerLose())
-        System.out.println(LOSE_MSG);
-    else if (didThePlayerWin())
-        System.out.println(WIN_MSG);
-}
-
-
-//After every player movement, prints the current status of the game.
-//The player's current position and how many treasure he already has
-//and the two enemy's position.
-void printGameStatus(){
-    String lvl1Enemy;
-    String lvl2Enemy;
-    if (lvl1EnemyInfo[ENEMY_TYPE] == LOOPER)
-        lvl1Enemy = ENEMY_L_MSG;
-    else
-        lvl1Enemy = ENEMY_Z_MSG;
-    if (lvl2EnemyInfo[ENEMY_TYPE] == LOOPER)
-        lvl2Enemy = ENEMY_L_MSG;
-    else
-        lvl2Enemy = ENEMY_Z_MSG;
-    System.out.printf(PLAYER_MOV,
-            playerInfo[LEVEL], playerInfo[ROOM], treasureCount);
-    System.out.println();
-    System.out.printf(ENEMY_L1_MOV, lvl1Enemy, lvl1EnemyInfo[ROOM]);
-    System.out.println();
-    System.out.printf(ENEMY_L2_MOV, lvl2Enemy, lvl2EnemyInfo[ROOM]);
-    System.out.println();
-}
-
 //After receiving the input, updates the player position.
 //@param direction: direction where the player will move.
 //@param steps: how many rooms the player will move in the wished direction.
 void updatePlayerPosition(String direction, int steps){
-    if (direction.equals("right"))
+    if (direction.equals(RIGHT_COM))
         playerInfo[ROOM] += steps;
     else
         playerInfo[ROOM] -= steps;
@@ -156,7 +112,7 @@ void updatePlayerPosition(String direction, int steps){
     else if (playerInfo[LEVEL] == 2 && playerInfo[ROOM] > level2.length)
         playerInfo[ROOM] = level2.length;
     addTreasure(); //Checks if player collected treasure
-    usingTheStairs(); // Checks if player used the stairs
+    usingTheStairs(); //Checks if player used the stairs
 }
 
 //Handles player movement between levels using stairs.
@@ -170,7 +126,7 @@ void usingTheStairs(){
         if (level2[i] == STAIRS)
             stairsLevel2 = i + 1;
 
-    // Move player between levels
+    //Moves player between levels
     if (canThePlayerGoUpstairs(stairsLevel1)){
         playerInfo[LEVEL] = 2;
         playerInfo[ROOM] = stairsLevel2;
@@ -182,12 +138,14 @@ void usingTheStairs(){
 
 //Checks if the player can go from level one to level two.
 //@param stairs: room where the stairs are located in level one.
+//@return if the player will move to level two.
 boolean canThePlayerGoUpstairs(int stairs){
     return playerInfo[LEVEL] == 1 && playerInfo[ROOM] == stairs;
 }
 
 //Checks if the player can go from level two to level one.
 //@param stairs: room where the stairs are located in level two.
+//@return if the player will move to level one.
 boolean canThePlayerGoDownStairs(int stairs){
     return playerInfo[LEVEL] == 2 && playerInfo[ROOM] == stairs;
 }
@@ -263,6 +221,7 @@ void updateZigzaggerPosition(int[] enemyInfo){
 }
 
 //Initializes the player's state, including starting level and room.
+//@return the array with the player's information.
 int[] initPlayerState(){
     int[] initialPlayerStatus = new int[PLAYER_STATS];
     for (int i = 0; i < level1.length; i++){
@@ -282,6 +241,7 @@ int[] initPlayerState(){
 
 //Identifies the enemy and places him in his initial position.
 //@param lvl: dungeon layout of the level the enemy's in.
+//@return the array with the enemy's information.
 int[] buildEnemy(char[] lvl){
     int[] enemyInfo = new int[ENEMY_STATS];
     for (int i = 0; i < lvl.length; i++) {
@@ -297,6 +257,7 @@ int[] buildEnemy(char[] lvl){
 }
 
 //Locates the exit and returns its position and level.
+//@return the array with the location of the exit.
 int[] locateExit (){
     int[] exit = new int[EXIT_STATS];
     for (int i = 0; i < level1.length; i++){
@@ -315,6 +276,7 @@ int[] locateExit (){
 }
 
 //Counts every treasure present in both levels.
+//@return the total number of treasures in both levels of the dungeon.
 int countTreasures (){
     int treasures = 0;
     for (int i = 0; i < level1.length; i++){
@@ -328,8 +290,52 @@ int countTreasures (){
     return treasures;
 }
 
+//Handles the quit command and prints the final game result.
+void quitGame(){
+    if (isTheGameOver()) {
+        if (didThePlayerLose())
+            System.out.println(QUIT_MSG + LOSE_MSG);
+        else if (didThePlayerWin())
+            System.out.println(QUIT_MSG + WIN_MSG);
+    }
+    else
+        System.out.println(QUIT_MID_GAME);
+}
+
+//Once the game is over, prints the game's result.
+void printGameResult(){
+    if (didThePlayerLose())
+        System.out.println(LOSE_MSG);
+    else if (didThePlayerWin())
+        System.out.println(WIN_MSG);
+}
+
+//After every player movement, prints the current status of the game.
+//The player's current position and how many treasure he already has
+//and the two enemy's position.
+void printGameStatus(){
+    String lvl1Enemy;
+    String lvl2Enemy;
+    if (lvl1EnemyInfo[ENEMY_TYPE] == LOOPER)
+        lvl1Enemy = ENEMY_L_MSG;
+    else
+        lvl1Enemy = ENEMY_Z_MSG;
+    if (lvl2EnemyInfo[ENEMY_TYPE] == LOOPER)
+        lvl2Enemy = ENEMY_L_MSG;
+    else
+        lvl2Enemy = ENEMY_Z_MSG;
+    System.out.printf(PLAYER_MOV,
+            playerInfo[LEVEL], playerInfo[ROOM], treasureCount);
+    System.out.println();
+    System.out.printf(ENEMY_L1_MOV, lvl1Enemy, lvl1EnemyInfo[ROOM]);
+    System.out.println();
+    System.out.printf(ENEMY_L2_MOV, lvl2Enemy, lvl2EnemyInfo[ROOM]);
+    System.out.println();
+}
+
 //Checks if the input submitted is valid.
 //@param command: input.
+//@return if the command is valid.
 boolean isTheCommandValid(String command){
     String[] commandParts = command.split(" ");
     if (commandParts.length!=2)
