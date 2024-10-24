@@ -95,6 +95,19 @@ boolean isTheGameOver(){
             didThePlayerLose();
 }
 
+
+//Processes the player's movements and updates the enemies' position
+//and prints the game's current status.
+//@param direction: direction where the player will move.
+//@param steps: how many rooms the player will move in the wished direction.
+void readPlayerMovement(String direction, int steps){
+    updatePlayerPosition(direction, steps);
+    updateEnemiesPosition();
+    if (!isTheGameOver()){
+        printGameStatus();
+    }
+}
+
 //After receiving the input, updates the player position.
 //@param direction: direction where the player will move.
 //@param steps: how many rooms the player will move in the wished direction.
@@ -333,42 +346,21 @@ void printGameStatus(){
 //@param command: input.
 //@return if the command is valid.
 boolean isTheCommandValid(String command){
-    String[] commandParts = command.split(" ");
-    if (commandParts.length!=2)
-        return false;
-    String direction = commandParts[0];
-    if (!direction.equals(RIGHT_COM)&&!direction.equals(LEFT_COM))
-        return false;
-    String stepsString = commandParts[1];
-    for(char c : stepsString.toCharArray())
-        if (!Character.isDigit(c))
-            return false;
-    return true;
+    return command.equals(RIGHT_COM) || command.equals(LEFT_COM);
 }
 
-//Reads the input and separated the direction the amount of steps.
-//It also processes the player's movements and updates the enemies' position.
-//@param command: input
-void readPlayerMovement(String command){
-    String[] commandParts = command.split(" ");
-    String direction = commandParts[0];
-    int steps = Integer.parseInt(commandParts[1]);
-    updatePlayerPosition(direction, steps);
-    updateEnemiesPosition();
-    if (!isTheGameOver()){
-        printGameStatus();
-    }
-}
+
 
 //Reads the input and separated the direction the amount of steps.
 //@param in: Scanner.
 void readInput(Scanner in) {
-    String command = in.nextLine();
+    String command = in.next();
     if (command.equals(QUIT_COM))
         quitGame();
     else if (isTheCommandValid(command)) {
+        int steps = in.nextInt();
         if (!isTheGameOver()) {
-            readPlayerMovement(command); //Processes the players' movements
+            readPlayerMovement(command, steps); //Processes the players' movements
             if (isTheGameOver())
                 printGameResult(); //Prints the final game result
             readInput(in); //Recursive call to continue reading movements
@@ -379,6 +371,7 @@ void readInput(Scanner in) {
         }
     }
     else {
+        String rest = in.nextLine();
         System.out.println(INVALID_COM_MSG);
         readInput(in); //Recursive call to continue reading commands
     }
