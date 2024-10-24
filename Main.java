@@ -12,9 +12,9 @@ final String LOSE_MSG = "You lost the game!";
 final String QUIT_MID_GAME = "The game was not over yet!";
 final String QUIT_MSG = "Goodbye: ";
 final String INVALID_COM_MSG = "Invalid command";
-final String PLAYER_MOV = "Player: level %d, room %d, treasures %d";
-final String ENEMY_L1_MOV = "Level 1 enemy: %s, room %d";
-final String ENEMY_L2_MOV = "Level 2 enemy: %s, room %d";
+final String PLAYER_MOV = "Player: level %d, room %d, treasures %d\n";
+final String ENEMY_L1_MOV = "Level 1 enemy: %s, room %d\n";
+final String ENEMY_L2_MOV = "Level 2 enemy: %s, room %d\n";
 final String ENEMY_Z_MSG = "zigzagger";
 final String ENEMY_L_MSG = "looper";
 
@@ -324,13 +324,9 @@ void printGameStatus(){
         lvl2Enemy = ENEMY_L_MSG;
     else
         lvl2Enemy = ENEMY_Z_MSG;
-    System.out.printf(PLAYER_MOV,
-            playerInfo[LEVEL], playerInfo[ROOM], treasureCount);
-    System.out.println();
+    System.out.printf(PLAYER_MOV, playerInfo[LEVEL], playerInfo[ROOM], treasureCount);
     System.out.printf(ENEMY_L1_MOV, lvl1Enemy, lvl1EnemyInfo[ROOM]);
-    System.out.println();
     System.out.printf(ENEMY_L2_MOV, lvl2Enemy, lvl2EnemyInfo[ROOM]);
-    System.out.println();
 }
 
 //Checks if the input submitted is valid.
