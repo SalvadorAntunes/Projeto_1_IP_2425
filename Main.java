@@ -348,47 +348,37 @@ boolean isTheCommandValid(String command){
 //It also processes the player's movements and updates the enemies' position.
 //@param command: input
 void readPlayerMovement(String command){
-    if (isTheCommandValid(command)){
-        String[] commandParts = command.split(" ");
-        String direction = commandParts[0];
-        int steps = Integer.parseInt(commandParts[1]);
-        updatePlayerPosition(direction, steps);
-        updateEnemiesPosition();
-        if (!isTheGameOver()){
-            printGameStatus();
-        }
+    String[] commandParts = command.split(" ");
+    String direction = commandParts[0];
+    int steps = Integer.parseInt(commandParts[1]);
+    updatePlayerPosition(direction, steps);
+    updateEnemiesPosition();
+    if (!isTheGameOver()){
+        printGameStatus();
     }
-    else {
-        System.out.println(INVALID_COM_MSG); //Invalid command message
-    }
-}
-
-//Reads every input after the finished.
-//Ensures the game only allows quitting.
-//@param command: input.
-void readAfterTheGameFinished(String command){
-    if (isTheCommandValid(command))
-        System.out.println(GAME_OVER_MSG); //Game over message for valid commands
-    else
-        System.out.println(INVALID_COM_MSG); //Invalid command message
-
 }
 
 //Reads the input and separated the direction the amount of steps.
 //@param in: Scanner.
-void readInput(Scanner in){
+void readInput(Scanner in) {
     String command = in.nextLine();
     if (command.equals(QUIT_COM))
         quitGame();
-    else if (!isTheGameOver()){
-        readPlayerMovement(command); //Processes the players' movements
-        readInput(in); //Recursive call to continue reading movements
-        if (isTheGameOver())
-            printGameResult(); //Prints the final game result
+    else if (isTheCommandValid(command)) {
+        if (!isTheGameOver()) {
+            readPlayerMovement(command); //Processes the players' movements
+            if (isTheGameOver())
+                printGameResult(); //Prints the final game result
+            readInput(in); //Recursive call to continue reading movements
+        } else if (isTheGameOver()){ //Reads inputs once the game is finished
+            System.out.println(GAME_OVER_MSG);
+            readInput(in); //Recursive call to continue reading commands
+            // Keep reading inputs until it's the command to finish te program
+        }
     }
-    else if (isTheGameOver()){
-        readAfterTheGameFinished(command); //Reads inputs once the game is finished
-        readInput(in); //Recursive call to continue reading commands
+    else {
+        System.out.println(INVALID_COM_MSG);
+        readInput(in);
     }
 }
 
