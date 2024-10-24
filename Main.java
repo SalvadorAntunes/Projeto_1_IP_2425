@@ -128,7 +128,7 @@ void updatePlayerPosition(String direction, int steps){
     usingTheStairs(); //Checks if player used the stairs
 }
 
-//Handles player movement between levels using stairs.
+//Locates the stairs and handles player movement between levels.
 void usingTheStairs(){
     int stairsLevel1 = 0;
     int stairsLevel2 = 0;
@@ -143,7 +143,8 @@ void usingTheStairs(){
     if (canThePlayerGoUpstairs(stairsLevel1)){
         playerInfo[LEVEL] = 2;
         playerInfo[ROOM] = stairsLevel2;
-    } else if (canThePlayerGoDownStairs(stairsLevel2)) {
+    }
+    else if (canThePlayerGoDownStairs(stairsLevel2)) {
         playerInfo[LEVEL] = 1;
         playerInfo[ROOM] = stairsLevel1;
     }
@@ -202,13 +203,12 @@ void updateLooperPosition(int[] enemyInfo){
     //If enemy moves beyond the last room, he goes to the first room
     if (enemyInfo[LEVEL] == 1 && enemyInfo[ROOM] > level1.length)
         enemyInfo[ROOM] = 1;
-    if (enemyInfo[LEVEL] == 2 && enemyInfo[ROOM] > level2.length)
+    else if (enemyInfo[LEVEL] == 2 && enemyInfo[ROOM] > level2.length)
         enemyInfo[ROOM] = 1;
 }
 
 //Updates the zigzaggers' position.
-//Zigzagger moves in an increasing step pattern (1, 2, 3, 4, 5)
-//and wraps around if it hits the edge.
+//Zigzagger moves in an increasing step pattern (1, 2, 3, 4, 5).
 //@param enemyInfo: Contains every information about the enemy(room, level, and enemy type).
 void updateZigzaggerPosition(int[] enemyInfo){
     if (enemyInfo[LEVEL] == 1) {
@@ -220,8 +220,7 @@ void updateZigzaggerPosition(int[] enemyInfo){
         zigzaggerStepsL1++; //Increases step size for the next movement
         if (zigzaggerStepsL1 == 6)
             zigzaggerStepsL1 = 1; //Resets steps after reaching 5
-    }
-    if (enemyInfo[LEVEL] == 2) {
+    } else if (enemyInfo[LEVEL] == 2) {
         enemyInfo[ROOM] += zigzaggerStepsL2;
 
         //If enemy moves beyond the last room, he goes to the first room
@@ -303,6 +302,7 @@ int countTreasures (){
     return treasures;
 }
 
+
 //Handles the quit command and prints the final game result.
 void quitGame(){
     if (isTheGameOver()) {
@@ -348,8 +348,6 @@ void printGameStatus(){
 boolean isTheCommandValid(String command){
     return command.equals(RIGHT_COM) || command.equals(LEFT_COM);
 }
-
-
 
 //Reads the input and separated the direction the amount of steps.
 //@param in: Scanner.
