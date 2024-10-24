@@ -49,8 +49,9 @@ int[] playerInfo;
 int[] lvl1EnemyInfo;
 int[] lvl2EnemyInfo;
 int[] exitInfo;
-int zigzaggerStepsL1;
-int zigzaggerStepsL2;
+int zigzaggerStepsL1; //The amount of steps the zigzagger in level 1 will take next turn
+int zigzaggerStepsL2; //The amount of steps the zigzagger in level 2 will take next turn
+boolean programRunning; //Keeps the game until the player quits
 
 
 //Initializes the game state by setting the dungeon layout, and the player's initial position.
@@ -67,7 +68,9 @@ void initState(char[] layoutDungeonLevel1, char[] layoutDungeonLevel2){
     lvl2EnemyInfo[LEVEL] = 2;
     zigzaggerStepsL1 = 1;
     zigzaggerStepsL2 = 1;
+    programRunning = true;
 }
+
 
 //Checks if the player has won the game by collecting all treasures and reaching the exit.
 //@return if the player won.
@@ -95,12 +98,11 @@ boolean isTheGameOver(){
             didThePlayerLose();
 }
 
-
 //Processes the player's movements and updates the enemies' position
 //and prints the game's current status.
 //@param direction: direction where the player will move.
 //@param steps: how many rooms the player will move in the wished direction.
-void readPlayerMovement(String direction, int steps){
+void processPlayerMovement(String direction, int steps){
     updatePlayerPosition(direction, steps);
     updateEnemiesPosition();
     if (!isTheGameOver()){
@@ -313,6 +315,7 @@ void quitGame(){
     }
     else
         System.out.println(QUIT_MID_GAME);
+    programRunning = false; //Finishes the game
 }
 
 //Once the game is over, prints the game's result.
@@ -351,37 +354,36 @@ boolean isTheCommandValid(String command){
 
 //Reads the input and separated the direction the amount of steps.
 //@param in: Scanner.
-void readInput(Scanner in) {
-    String command = in.next();
-    if (command.equals(QUIT_COM))
-        quitGame();
-    else if (isTheCommandValid(command)) {
-        int steps = in.nextInt();
-        if (!isTheGameOver()) {
-            readPlayerMovement(command, steps); //Processes the players' movements
-            if (isTheGameOver())
-                printGameResult(); //Prints the final game result
-            readInput(in); //Recursive call to continue reading movements
-        } else if (isTheGameOver()){ //Reads inputs once the game is finished
-            System.out.println(GAME_OVER_MSG);
-            readInput(in); //Recursive call to continue reading commands
-            // Keep reading inputs until it's the command to finish te program
+void readGameInput(Scanner in) {
+    while (programRunning) {
+        String command = in.next();
+        if (command.equals(QUIT_COM))
+            quitGame();
+        else if (isTheCommandValid(command)) {
+            int steps = in.nextInt();
+            in.nextLine();
+            if (!isTheGameOver()) {
+                processPlayerMovement(command, steps); //Processes the players' movements
+                if (isTheGameOver())
+                    printGameResult(); //Prints the final game result when the game is over
+            } else if (isTheGameOver()) //Reads inputs once the game is finished
+                System.out.println(GAME_OVER_MSG);
+        } else {
+            in.nextLine();
+            System.out.println(INVALID_COM_MSG);
         }
-    }
-    else {
-        String rest = in.nextLine();
-        System.out.println(INVALID_COM_MSG);
-        readInput(in); //Recursive call to continue reading commands
     }
 }
 
 //Reads the dungeon layout from input.
 //Converts the string layout into a character array representing the dungeon level.
 //@param in: Scanner.
+//@return the level's layout
 char[] readScenario(Scanner in){
     String layoutDungeonLevel = in.nextLine();
     return layoutDungeonLevel.toCharArray();
 }
+
 
 //Main method to start the game, initialize the state, and process player input.
 void main(){
@@ -395,7 +397,7 @@ void main(){
     initState(layoutDungeonLevel1, layoutDungeonLevel2);
 
     //Starts reading and processing player movements
-    readInput(in);
+    readGameInput(in);
 
     in.close(); //Closes the scanner
 }
