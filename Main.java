@@ -31,18 +31,18 @@ final char ENEMY_L = 'L';
 
 //Constants representing the game statistics
 final int ENEMY_STATS = 3;
-final int PLAYER_STATS = 2;
+final int PLAYER_STATS = 3;
 final int EXIT_STATS = 2;
 final int ROOM = 0;
 final int LEVEL = 1;
 final int ENEMY_TYPE = 2;
 final int LOOPER = 1;
 final int ZIGZAGGER = 2;
+final int TREASURES = 2;
 
 
 //Global variables to control the game status
 int totalTreasures;
-int treasureCount;
 char[] level1;
 char[] level2;
 int[] playerInfo;
@@ -51,15 +51,14 @@ int[] lvl2EnemyInfo;
 int[] exitInfo;
 int zigzaggerStepsL1; //The amount of steps the zigzagger in level 1 will take next turn
 int zigzaggerStepsL2; //The amount of steps the zigzagger in level 2 will take next turn
-boolean programRunning; //Keeps the game until the player quits
+boolean gameRunning; //Keeps the game until the player quits
 
 
 //Initializes the game state by setting the dungeon layout, and the player's initial position.
-void initState(char[] layoutDungeonLevel1, char[] layoutDungeonLevel2){
+void initState(char[] layoutDungeonLevel2, char[] layoutDungeonLevel1){
     level1 = layoutDungeonLevel1;
     level2 = layoutDungeonLevel2;
     playerInfo = initPlayerState();
-    treasureCount = 0;
     totalTreasures = countTreasures();
     exitInfo = locateExit();
     lvl1EnemyInfo = buildEnemy(level1);
@@ -68,14 +67,13 @@ void initState(char[] layoutDungeonLevel1, char[] layoutDungeonLevel2){
     lvl2EnemyInfo[LEVEL] = 2;
     zigzaggerStepsL1 = 1;
     zigzaggerStepsL2 = 1;
-    programRunning = true;
+    gameRunning = true;
 }
-
 
 //Checks if the player has won the game by collecting all treasures and reaching the exit.
 //@return if the player won.
 boolean didThePlayerWin(){
-    return treasureCount == totalTreasures &&
+    return playerInfo[TREASURES] == totalTreasures &&
             playerInfo[ROOM] == exitInfo[ROOM] &&
             playerInfo[LEVEL] == exitInfo[LEVEL];
 }
@@ -171,14 +169,14 @@ void addTreasure(){
     if (playerInfo[LEVEL] == 1) {
         for (int i = 0; i < level1.length; i++)
             if (level1[i] == TREASURE && i == playerInfo[ROOM] - 1){
-                treasureCount++;
+                playerInfo[TREASURES]++;
                 level1[i] = '.'; //Removes treasure after collection
             }
     }
     else if (playerInfo[LEVEL] == 2) {
         for (int i = 0; i < level2.length; i++)
             if (level2[i] == TREASURE && i + 1 == playerInfo[ROOM]){
-                treasureCount++;
+                playerInfo[TREASURES]++;
                 level2[i] = '.'; //Removes treasure after collection
             }
     }
@@ -315,7 +313,7 @@ void quitGame(){
     }
     else
         System.out.println(QUIT_MID_GAME);
-    programRunning = false; //Finishes the game
+    gameRunning = false; //Finishes the game
 }
 
 //Once the game is over, prints the game's result.
@@ -340,7 +338,7 @@ void printGameStatus(){
         lvl2Enemy = ENEMY_L_MSG;
     else
         lvl2Enemy = ENEMY_Z_MSG;
-    System.out.printf(PLAYER_MOV, playerInfo[LEVEL], playerInfo[ROOM], treasureCount);
+    System.out.printf(PLAYER_MOV, playerInfo[LEVEL], playerInfo[ROOM], playerInfo[TREASURES]);
     System.out.printf(ENEMY_L1_MOV, lvl1Enemy, lvl1EnemyInfo[ROOM]);
     System.out.printf(ENEMY_L2_MOV, lvl2Enemy, lvl2EnemyInfo[ROOM]);
 }
@@ -353,9 +351,10 @@ boolean isTheCommandValid(String command){
 }
 
 //Reads the input and separated the direction the amount of steps.
+//Checks if the game should still be running before receiving the input.
 //@param in: Scanner.
 void readGameInput(Scanner in) {
-    while (programRunning) {
+    while (gameRunning) {
         String command = in.next();
         if (command.equals(QUIT_COM))
             quitGame();
@@ -379,7 +378,7 @@ void readGameInput(Scanner in) {
 //Converts the string layout into a character array representing the dungeon level.
 //@param in: Scanner.
 //@return the level's layout
-char[] readScenario(Scanner in){
+char[] readDungeonLevel(Scanner in){
     String layoutDungeonLevel = in.nextLine();
     return layoutDungeonLevel.toCharArray();
 }
@@ -389,12 +388,8 @@ char[] readScenario(Scanner in){
 void main(){
     Scanner in = new Scanner(System.in);
 
-    //Reads dungeon layouts for both levels
-    char[] layoutDungeonLevel2 = readScenario(in);
-    char[] layoutDungeonLevel1 = readScenario(in);
-
-    //Initializes game state with the dungeon layouts
-    initState(layoutDungeonLevel1, layoutDungeonLevel2);
+    //Reads dungeon layouts for both levels and initializes game state
+    initState(readDungeonLevel(in), readDungeonLevel(in));
 
     //Starts reading and processing player movements
     readGameInput(in);
