@@ -51,7 +51,7 @@ int[] lvl2EnemyInfo;
 int[] exitInfo;
 int zigzaggerStepsL1; //The amount of steps the zigzagger in level 1 will take next turn
 int zigzaggerStepsL2; //The amount of steps the zigzagger in level 2 will take next turn
-boolean gameRunning; //Keeps the game until the player quits
+boolean gameRunning; //Keeps the game running until the player quits
 
 
 //Initializes the game state by setting the dungeon layout, and the player's initial position.
@@ -114,7 +114,7 @@ void processPlayerMovement(String direction, int steps){
 void updatePlayerPosition(String direction, int steps){
     if (direction.equals(RIGHT_COM))
         playerInfo[ROOM] += steps;
-    else
+    else if (direction.equals(LEFT_COM))
         playerInfo[ROOM] -= steps;
 
     //Ensures player stays within room boundaries
@@ -144,7 +144,7 @@ void usingTheStairs(){
         playerInfo[LEVEL] = 2;
         playerInfo[ROOM] = stairsLevel2;
     }
-    else if (canThePlayerGoDownStairs(stairsLevel2)) {
+    else if (canThePlayerGoDownstairs(stairsLevel2)) {
         playerInfo[LEVEL] = 1;
         playerInfo[ROOM] = stairsLevel1;
     }
@@ -160,7 +160,7 @@ boolean canThePlayerGoUpstairs(int stairs){
 //Checks if the player can go from level two to level one.
 //@param stairs: room where the stairs are located in level two.
 //@return if the player will move to level one.
-boolean canThePlayerGoDownStairs(int stairs){
+boolean canThePlayerGoDownstairs(int stairs){
     return playerInfo[LEVEL] == 2 && playerInfo[ROOM] == stairs;
 }
 
@@ -186,11 +186,11 @@ void addTreasure(){
 void updateEnemiesPosition(){
     if (lvl1EnemyInfo[ENEMY_TYPE] == LOOPER)
         updateLooperPosition(lvl1EnemyInfo);
-    else
+    else if (lvl1EnemyInfo[ENEMY_TYPE] == ZIGZAGGER)
         updateZigzaggerPosition(lvl1EnemyInfo);
     if (lvl2EnemyInfo[ENEMY_TYPE] == LOOPER)
         updateLooperPosition(lvl2EnemyInfo);
-    else
+    else if (lvl2EnemyInfo[ENEMY_TYPE] == ZIGZAGGER)
         updateZigzaggerPosition(lvl2EnemyInfo);
 }
 
